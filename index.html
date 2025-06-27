@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Launch Address in Uber or Maps</title>
+  <title>Uber Address Launcher</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: sans-serif;
       padding: 1.5em;
       max-width: 420px;
       margin: auto;
@@ -35,55 +35,45 @@
 </head>
 <body>
 
-  <h2>Open Address in App</h2>
+  <h2>Open Address in Uber</h2>
 
   <input type="text" id="address" placeholder="Enter address (e.g. 1 Infinite Loop, Cupertino)" />
 
-  <button onclick="openInUberWeb()">Open in Uber</button>
-  <button onclick="openInLyft()">Open in Lyft</button>
-  <button onclick="openInAppleMaps()">Open in Apple Maps</button>
-  <button onclick="openInGoogleMaps()">Open in Google Maps</button>
+  <button onclick="openInUber()">Open in Uber</button>
 
   <script>
-    function getAddress() {
+    async function openInUber() {
       const raw = document.getElementById("address").value.trim();
       if (!raw) {
         alert("Please enter an address.");
-        return null;
+        return;
       }
-      return encodeURIComponent(raw);
-    }
 
-    function openInUberWeb() {
-      const addr = getAddress();
-      if (!addr) return;
-      const url = `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${addr}`;
-      window.open(url, "_blank");
-    }
+      const encodedAddress = encodeURIComponent(raw);
 
-    function openInLyft() {
-      // Opens the Lyft app (destination input not supported without lat/lng)
-      window.location.href = "lyft://";
-      setTimeout(() => {
-        window.open("https://www.lyft.com/rider", "_blank");
-      }, 2000);
-    }
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}`, {
+          headers: {
+            'Accept-Language': 'en'
+          }
+        });
+        const data = await response.json();
 
-    function openInAppleMaps() {
-      const addr = getAddress();
-      if (!addr) return;
-      const url = `maps://?q=${addr}`;
-      window.location.href = url;
-      setTimeout(() => {
-        window.open(`https://www.google.com/maps/search/?query=${addr}`, "_blank");
-      }, 2000);
-    }
+        if (data.length === 0) {
+          alert("Address not found. Please try a different address.");
+          return;
+        }
 
-    function openInGoogleMaps() {
-      const addr = getAddress();
-      if (!addr) return;
-      const link = `https://www.google.com/maps/search/?api=1&query=${addr}`;
-      window.open(link, "_blank");
+        const lat = data[0].lat;
+        const lon = data[0].lon;
+
+        const url = `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lon}`;
+        window.open(url, "_blank");
+
+      } catch (error) {
+        console.error("Geocoding error:", error);
+        alert("Something went wrong. Please check your internet connection.");
+      }
     }
   </script>
 
