@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Launch Address in App</title>
+  <title>Launch Address in Uber or Maps</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       padding: 1.5em;
       max-width: 420px;
       margin: auto;
-      background: #f9f9f9;
+      background-color: #f8f8f8;
     }
     h2 {
       text-align: center;
-      font-size: 1.6em;
     }
     input, button {
       width: 100%;
       padding: 14px;
       margin: 10px 0;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
     }
     button {
@@ -38,9 +37,9 @@
 
   <h2>Open Address in App</h2>
 
-  <input type="text" id="address" placeholder="Enter address (e.g. 1600 Amphitheatre Parkway)" />
+  <input type="text" id="address" placeholder="Enter address (e.g. 1 Infinite Loop, Cupertino)" />
 
-  <button onclick="openInUber()">Open in Uber</button>
+  <button onclick="openInUberWeb()">Open in Uber</button>
   <button onclick="openInLyft()">Open in Lyft</button>
   <button onclick="openInAppleMaps()">Open in Apple Maps</button>
   <button onclick="openInGoogleMaps()">Open in Google Maps</button>
@@ -55,21 +54,15 @@
       return encodeURIComponent(raw);
     }
 
-    function openInUber() {
+    function openInUberWeb() {
       const addr = getAddress();
       if (!addr) return;
-      const url = `uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=${addr}`;
-      // Try to open Uber app
-      window.location.href = url;
-
-      // Fallback: open Uber install page after 2 seconds if nothing happens
-      setTimeout(() => {
-        window.open("https://m.uber.com/", "_blank");
-      }, 2000);
+      const url = `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=${addr}`;
+      window.open(url, "_blank");
     }
 
     function openInLyft() {
-      // Lyft deep link format with lat/lng requires API – here we just open the app
+      // Opens the Lyft app (destination input not supported without lat/lng)
       window.location.href = "lyft://";
       setTimeout(() => {
         window.open("https://www.lyft.com/rider", "_blank");
@@ -79,14 +72,10 @@
     function openInAppleMaps() {
       const addr = getAddress();
       if (!addr) return;
-
-      // Only works on iOS
       const url = `maps://?q=${addr}`;
       window.location.href = url;
-
-      // Optional fallback to Google Maps
       setTimeout(() => {
-        window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, "_blank");
+        window.open(`https://www.google.com/maps/search/?query=${addr}`, "_blank");
       }, 2000);
     }
 
