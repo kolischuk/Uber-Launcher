@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Launch Address in App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1.5em;
+      max-width: 420px;
+      margin: auto;
+      background: #f9f9f9;
+    }
+    h2 {
+      text-align: center;
+      font-size: 1.6em;
+    }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007aff;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #005bb5;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Open Address in App</h2>
+
+  <input type="text" id="address" placeholder="Enter address (e.g. 1600 Amphitheatre Parkway)" />
+
+  <button onclick="openInUber()">Open in Uber</button>
+  <button onclick="openInLyft()">Open in Lyft</button>
+  <button onclick="openInAppleMaps()">Open in Apple Maps</button>
+  <button onclick="openInGoogleMaps()">Open in Google Maps</button>
+
+  <script>
+    function getAddress() {
+      const raw = document.getElementById("address").value.trim();
+      if (!raw) {
+        alert("Please enter an address.");
+        return null;
+      }
+      return encodeURIComponent(raw);
+    }
+
+    function openInUber() {
+      const addr = getAddress();
+      if (!addr) return;
+      const url = `uber://?action=setPickup&pickup=my_location&dropoff[formatted_address]=${addr}`;
+      // Try to open Uber app
+      window.location.href = url;
+
+      // Fallback: open Uber install page after 2 seconds if nothing happens
+      setTimeout(() => {
+        window.open("https://m.uber.com/", "_blank");
+      }, 2000);
+    }
+
+    function openInLyft() {
+      // Lyft deep link format with lat/lng requires API – here we just open the app
+      window.location.href = "lyft://";
+      setTimeout(() => {
+        window.open("https://www.lyft.com/rider", "_blank");
+      }, 2000);
+    }
+
+    function openInAppleMaps() {
+      const addr = getAddress();
+      if (!addr) return;
+
+      // Only works on iOS
+      const url = `maps://?q=${addr}`;
+      window.location.href = url;
+
+      // Optional fallback to Google Maps
+      setTimeout(() => {
+        window.open(`https://www.google.com/maps/search/?api=1&query=${addr}`, "_blank");
+      }, 2000);
+    }
+
+    function openInGoogleMaps() {
+      const addr = getAddress();
+      if (!addr) return;
+      const link = `https://www.google.com/maps/search/?api=1&query=${addr}`;
+      window.open(link, "_blank");
+    }
+  </script>
+
+</body>
+</html>
